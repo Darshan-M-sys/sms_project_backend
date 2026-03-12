@@ -7,6 +7,10 @@ const {MongoStore} = require("connect-mongo");
 const userRoute = require("./router/userRoute");
 const path= require("path")
 const adminProfileRoute = require("./router/adminProfileRoute");
+const studentProfileRoute = require("./router/studentProfileRoute");
+const teacherRouter = require("./router/teacherRoute");
+const hodProfileRouter = require("./router/hodProfileRoute");
+const officeStaffProfileRoute = require("./router/officeStaff");
 require("dotenv").config();
 
 connectedDb();
@@ -33,8 +37,6 @@ app.use(
 
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // ✅ 1 day (milliseconds)
-      httpOnly: true,
-      sameSite: "lax",
     },
 
     store: MongoStore.create({
@@ -47,8 +49,10 @@ app.use(
 // Routes
 app.use("/user", userRoute);
 app.use("/admin", adminProfileRoute);
-
-// Server
+app.use("/student", studentProfileRoute);
+app.use("/teacher", teacherRouter);
+app.use("/hod", hodProfileRouter);
+app.use("/office/staff",officeStaffProfileRoute)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

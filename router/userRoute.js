@@ -2,92 +2,35 @@ const express = require("express");
 const user = require("../models/User");
 const userRoute = express.Router();
 const bcrypt= require("bcryptjs")
-const isAdmin= require("../middlewares/isAdmin")
-const isPrincipal= require("../middlewares/isPrincipal")
-const isOfficeStaff= require("../middlewares/isOfficeStaff")
 const isAuthenticated= require("../middlewares/isAuthenticated")
 const isHODRegister=require("../middlewares/isHODRegister")
 const nodemailer = require("nodemailer")
 // principal Register 
 
+
 const isStudentRegister=require("../middlewares/isStudentRegister")
-userRoute.post("/principal/register",isAuthenticated,isAdmin,async (req, res) => {
-try {
-
-  const { userId, email, phone_number, password, role } = req.body;
-  if(role==="admin"){
-  const  existing_admin= await user.findOne({role:"admin"})
-  if(role==="admin" || existing_admin){
-    return res.status(400).json({msg:"Unauthorized Access"})
-  }
-  return; }
-  const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!email_pattern.test(email)) {
-    return res.status(400).json({ msg: "Wrong Email Pattern" });
-  }
-
-  const userid_pattern = /^[a-zA-Z0-9]+$/;
-  if (!userid_pattern.test(userId)) {
-    return res
-      .status(400)
-      .json({ msg: "UserId must include only alphabets & numbers" });
-  }
-  const password_pattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  if (!password_pattern.test(password)) {
-    return res.status(400).json({
-      msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character",
-    });
-  }
-  const salt= await bcrypt.genSalt(10);
-  const hashPassword= await bcrypt.hash(password,salt)
-  const existing_user = await user.findOne({ $or: [{ userId }, { email }] });
-  if (existing_user) {
-    return res
-      .status(400)
-      .json({ msg: "The userId or Email already exists" });
-  }
-  const data = await user.create({
-    userId,
-    email,
-    phone_number,
-    role,
-    password:hashPassword,
-  });
-
-  res.status(201).json({ msg: "Principal Registered Successfully!", data,success:true });
-} catch (error) {
-  console.error(error);
-  res.status(500).json({ msg: "Internal Server Error" });
-}
-});
-
-
 
 userRoute.post("/student/register",isAuthenticated,isStudentRegister,async (req, res) => {
 try {
 
   const { userId, email, phone_number, password, role } = req.body;
-  const  existing_admin= await user.findOne({role:"admin"})
-  if(role==="admin" || role==="principal" || role==="hod" || role==="officeStaff" || role==="teacher" ){
-    return res.status(400).json({msg:"Unauthorized Access"})
-  }
+  
 
   const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email_pattern.test(email)) {
-    return res.status(400).json({ msg: "Wrong Email Pattern" });
+    return res.status(200).json({ msg: "Wrong Email Pattern" });
   }
 
-  const userid_pattern = /^[a-zA-Z0-9]+$/;
+  const userid_pattern = /^[U]\d{2}[A-Z]{2}\d{2}[S]\d{4}$/;
   if (!userid_pattern.test(userId)) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "UserId must include only alphabets & numbers" });
   }
   const password_pattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!password_pattern.test(password)) {
-    return res.status(400).json({
+    return res.status(200).json({
       msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character",
     });
   }
@@ -96,7 +39,7 @@ try {
   const existing_user = await user.findOne({ $or: [{ userId }, { email }] });
   if (existing_user) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "The userId or Email already exists" });
   }
   const data = await user.create({
@@ -107,7 +50,7 @@ try {
     password:hashPassword,
   });
  
-  res.status(201).json({ msg: "HOD Registered Successfully!", data,success:true });
+  res.status(201).json({ msg: "Student Registered Successfully!", data,success:true });
 } catch (error) {
   console.error(error);
   res.status(500).json({ msg: "Internal Server Error" });
@@ -120,23 +63,23 @@ userRoute.post("/hod/register",isAuthenticated,isHODRegister,async (req, res) =>
 try {
   const { userId, email, phone_number, password, role } = req.body;
   if(role==="admin" || role==="principal" || role==="student" || role==="officeStaff" || role==="teacher" ){
-    return res.status(400).json({msg:"Unauthorized33 Access"})
+    return res.status(200).json({msg:"Unauthorized Access"})
   }
   const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email_pattern.test(email)) {
-    return res.status(400).json({ msg: "Wrong Email Pattern" });
+    return res.status(200).json({ msg: "Wrong Email Pattern" });
   }
 
-  const userid_pattern = /^[a-zA-Z0-9]+$/;
+  const userid_pattern = /^[U]\d{2}[A-Z]{2}\d{2}[H]\d{4}$/;
   if (!userid_pattern.test(userId)) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "UserId must include only alphabets & numbers" });
   }
   const password_pattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!password_pattern.test(password)) {
-    return res.status(400).json({
+    return res.status(200).json({
       msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character",
     });
   }
@@ -145,7 +88,7 @@ try {
   const existing_user = await user.findOne({ $or: [{ userId }, { email }] });
   if (existing_user) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "The userId or Email already exists" });
   }
   const data = await user.create({
@@ -167,27 +110,27 @@ try {
 
  // office Staff Register
  
-userRoute.post("/office/staff/register",isAuthenticated,isHODRegister,async (req, res) => {
+userRoute.post("/officestaff/register",isAuthenticated,isHODRegister,async (req, res) => {
 try {
   const { userId, email, phone_number, password, role } = req.body;
   if(role==="admin" || role==="principal" || role==="student" || role==="hod" || role==="teacher" ){
-    return res.status(400).json({msg:"Unauthorized Access"})
+    return res.status(200).json({msg:"Unauthorized Access"})
   } 
   const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email_pattern.test(email)) {
-    return res.status(400).json({ msg: "Wrong Email Pattern" });
+    return res.status(200).json({ msg: "Wrong Email Pattern" });
   }
 
-  const userid_pattern = /^[a-zA-Z0-9]+$/;
+  const userid_pattern = /^[U]\d{2}[A-Z]{2}\d{2}[O]\d{4}$/;
   if (!userid_pattern.test(userId)) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "UserId must include only alphabets & numbers" });
   }
   const password_pattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!password_pattern.test(password)) {
-    return res.status(400).json({
+    return res.status(200).json({
       msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character",
     });
   }
@@ -196,7 +139,7 @@ try {
   const existing_user = await user.findOne({ $or: [{ userId }, { email }] });
   if (existing_user) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "The userId or Email already exists" });
   }
   const data = await user.create({
@@ -220,23 +163,23 @@ userRoute.post("/teacher/register",isAuthenticated,isHODRegister,async (req, res
 try {
   const { userId, email, phone_number, password, role } = req.body;
   if(role==="admin" || role==="principal" || role==="student" || role==="hod" || role==="officeStaff" ){
-    return res.status(400).json({msg:"Unauthorized Access"})
+    return res.status(200).json({msg:"Unauthorized Access"})
   } 
   const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email_pattern.test(email)) {
-    return res.status(400).json({ msg: "Wrong Email Pattern" });
+    return res.status(200).json({ msg: "Wrong Email Pattern" });
   }
 
-  const userid_pattern = /^[a-zA-Z0-9]+$/;
+  const userid_pattern = /^[U]\d{2}[A-Z]{2}\d{2}[T]\d{4}$/;
   if (!userid_pattern.test(userId)) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "UserId must include only alphabets & numbers" });
   }
   const password_pattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!password_pattern.test(password)) {
-    return res.status(400).json({
+    return res.status(200).json({
       msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character",
     });
   }
@@ -245,7 +188,7 @@ try {
   const existing_user = await user.findOne({ $or: [{ userId }, { email }] });
   if (existing_user) {
     return res
-      .status(400)
+      .status(200)
       .json({ msg: "The userId or Email already exists" });
   }
   const data = await user.create({
@@ -298,6 +241,25 @@ if(!userId){
 }
 });
 
+userRoute.get("/datas/:role",isAuthenticated,isStudentRegister,async(req,res)=>{
+  try {
+    const userRole= req.params.role;
+    const userData= await  user.find({role:userRole});
+    res.status(200).json({data:userData});
+  } catch (error) {
+    res.status(500).json({msg:"Internal Server Error!"})
+  }
+})
+
+userRoute.delete("/delete/:userId",isAuthenticated,isStudentRegister,async(req,res)=>{
+  try {
+    const userId=req.params.userId;
+     await user.findByIdAndDelete({_id:userId});
+    res.status(200).json({msg:"Deleted Success",success:true})
+  } catch (error) {
+    res.status(500).json({msg:"Internal Server Error"})
+  }
+})
 
 userRoute.post("/forget/password", async (req, res) => {
   try {
@@ -315,7 +277,6 @@ userRoute.post("/forget/password", async (req, res) => {
     existingUser.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
     await existingUser.save();
 
-  
     const transporter = nodemailer.createTransport({
        service: "gmail",
       host: "smtp.gmail.com",
@@ -387,7 +348,6 @@ userRoute.post("/reset_password", async (req, res) => {
         msg: "Invalid OTP or OTP expired",type:"warning"
       });
     }
-
     // 2. Password validation
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -397,10 +357,8 @@ userRoute.post("/reset_password", async (req, res) => {
         msg: "Password must be 8+ chars, include uppercase, lowercase, number & symbol",type:"info"
       });
     }
-
     const salt = await bcrypt.genSalt(10);
     const hashPass = await bcrypt.hash(password, salt);
-
     ExistingUser.password = hashPass;
     ExistingUser.resetOtp = undefined;
     ExistingUser.resetOtpExpire = undefined;
@@ -422,7 +380,8 @@ userRoute.post("/reset_password", async (req, res) => {
 
 
 userRoute.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
+  req.session.destroy
+  ((err) => {
     if (err) {
       return res.status(500).json({
         msg: "Logout failed",type:"error"

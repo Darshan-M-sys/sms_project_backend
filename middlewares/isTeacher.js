@@ -5,4 +5,4 @@ const isTeacher=(req,res,next)=>{
     res.status(401).json({msg:"Unauthorized Access"})
    }
 }
-module.export=isTeacher;
+module.exports=isTeacher;

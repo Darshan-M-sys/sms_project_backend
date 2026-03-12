@@ -47,7 +47,7 @@ adminProfileRoute.post(
      if(existingProfile){
       return res.status(200).json({message:"Profile already created"})
      }
-      const profileImage =
+      const profileImage =  
         (req.files?.profile) ? req.files.profile[0].  filename: null;
 
       const collegeImage =
@@ -149,7 +149,7 @@ adminProfileRoute.put(
 adminProfileRoute.get('/profile',isAuthenticated,isAdmin,async(req,res)=>{
   try {
      const adminId= req.session.userSessionId;
-     const profileData= await adminProfile.findOne({adminId:adminId});
+     const profileData= await adminProfile.findOne({adminId:adminId}).populate("adminId");
      res.status(200).json({data:profileData})
   } catch (error) {
     res.status(500).json({msg:"Internal server error"})
